@@ -148,7 +148,7 @@ def decode(element):
       return build(ignore_element=True)
     
     # Some structures are completely ignored
-    if element.tag not in {
+    if element.tag in {
       'audio',  # Embedded audio player
       'center', # Centered block (usually used for banners, i.e. don't care)
       'hr',     # Horizontal rule (or topic change)
