@@ -66,12 +66,12 @@ def decode(element):
         # Most structural elements are kept as-is
         if element.tag in {
             'blockquote',
-            'ul',     # Unordered list container
-            'ol',     # Ordered list container
-            'dl',     # Description list container
-            'li',     # List item
-            'dt',     # Term item
-            'dd'        # Description item
+            'ul',      # Unordered list container
+            'ol',      # Ordered list container
+            'dl',      # Description list container
+            'li',      # List item
+            'dt',      # Term item
+            'dd'       # Description item
         }:
             return build()
         
@@ -100,65 +100,67 @@ def decode(element):
         
         # Keep some elements as-is
         if element.tag in {
-            'cite',   # Reference citation (mostly used for footnotes)
-            'q',      # Inline quotation
-            'sub',    # Subscript
-            'sup'     # Superscript
+            'cite',    # Reference citation (mostly used for footnotes)
+            'q',       # Inline quotation
+            'sub',     # Subscript
+            'sup'      # Superscript
         }:
             return build()
         
         # Code and symbol like are kept under a single mark (to avoid confusion with unexpected content)
         if element.tag in {
-            'code',   # Inline code snippet, usually for variables or short commands
-            'kbd',    # Mark used for keys (can be considered as code)
-            'tt',     # Typescript, usually rendered as monospaced characters
-            'var'     # Variable marker, usually rendered as code
+            'code',    # Inline code snippet, usually for variables or short commands
+            'kbd',     # Mark used for keys (can be considered as code)
+            'tt',      # Typescript, usually rendered as monospaced characters
+            'var'      # Variable marker, usually rendered as code
         }:
             return build('code')
         
         # Keep some element as marker, without their content
         if element.tag in {
-            'br',     # Line-break may be useful
-            'math'    # Math formulas are stripped, for simplicity
+            'br',      # Line-break may be useful
+            'math'     # Math formulas are stripped, for simplicity
         }:
             return build(ignore_content=True)
         
         # Remaining text formatting is stripped
         # TODO maybe should keep some simplified formats (e.g. emphasis)
         if element.tag in {
-            'b',      # Bold
-            'bdi',    # Bi-directional isolation, used to handle mixed text orientation (probably useless in this usage)
-            'big',    # Emphasis-like
-            'del',    # Mark for removed/deprecated text, rendered as strikethrough
-            'dfn',    # Emphases, usually rendered as bold
-            'em',     # Emphasis (often rendered as italic)
-            'font',   # Font, mostly used to define text color
-            'i',      # Italic
-            'ins',    # Mark for newly inserted text, usually used for revisions
-            'mark',   # Highlight, usually used for revisions
-            'rb',     # Ruby-related, base marker (this is the only one kept, as it is the actual content)
-            'ruby',   # Ruby is used to annotate glyphs (usually Asian languages)
-            's',      # Strikethrough
-            'small',  # Emphasis-like
-            'span',   # Generic structure used to apply custom formatting, stripped as it is too complicated too handle
-            'strong', # Emphasis, usually rendered as bold
-            'u',      # Underline
-            'wbr'     # Word break opportunity, irrelevant for plain text corpora
+            'b',       # Bold
+            'bdi',     # Bi-directional isolation, used to handle mixed text orientation (probably useless in this usage)
+            'big',     # Emphasis-like
+            'del',     # Mark for removed/deprecated text, rendered as strikethrough
+            'dfn',     # Emphases, usually rendered as bold
+            'em',      # Emphasis (often rendered as italic)
+            'font',    # Font, mostly used to define text color
+            'i',       # Italic
+            'ins',     # Mark for newly inserted text, usually used for revisions
+            'mark',    # Highlight, usually used for revisions
+            'rb',      # Ruby-related, base marker (this is the only one kept, as it is the actual content)
+            'ruby',    # Ruby is used to annotate glyphs (usually Asian languages)
+            's',       # Strikethrough
+            'section', # Used as container in some language (e.g. latin)
+            'small',   # Emphasis-like
+            'span',    # Generic structure used to apply custom formatting, stripped as it is too complicated too handle
+            'strong',  # Emphasis, usually rendered as bold
+            'u',       # Underline
+            'wbr'      # Word break opportunity, irrelevant for plain text corpora
         }:
             return build(ignore_element=True)
         
         # Some structures are completely ignored
         if element.tag in {
-            'audio',  # Embedded audio player
-            'center', # Centered block (usually used for banners, i.e. don't care)
-            'hr',     # Horizontal rule (or topic change)
-            'img',    # Embedded image
-            'meta',   # Invisible properties
-            'pre',    # Preserve plain text formatting, usually for code snippet (ignored for simplicity)
-            'rp',     # Ruby-related, fallback parenthesis
-            'rt',     # Ruby-related, pronunciation
-            'rtc',    # Ruby-related, semantic annotation
-            'table'   # Table (removed for simplicity)
+            'audio',   # Embedded audio player
+            'center',  # Centered block (usually used for banners, i.e. don't care)
+            'figure-inline', # ??? (note: occured in latin dump)
+            'hr',      # Horizontal rule (or topic change)
+            'img',     # Embedded image
+            'meta',    # Invisible properties
+            'pre',     # Preserve plain text formatting, usually for code snippet (ignored for simplicity)
+            'rp',      # Ruby-related, fallback parenthesis
+            'rt',      # Ruby-related, pronunciation
+            'rtc',     # Ruby-related, semantic annotation
+            'table'    # Table (removed for simplicity)
         }:
             return build(ignore_element=True, ignore_content=True)
         
@@ -591,6 +593,10 @@ def process(input_path, output_path, lang):
                             data = subfile.read(offsets[blob_index + 1] - offsets[blob_index])
                             
                             # Convert and export article
+                            if b'figure-inline' in data:
+                                with open('foo.xml', 'wb') as f:
+                                    f.write(data)
+                                raise RuntimeError()
                             node = parse(url, title, data)
                             xml_file.write(node)
                             xml_file.write('\n')
